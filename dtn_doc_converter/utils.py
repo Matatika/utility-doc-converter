@@ -51,7 +51,7 @@ def convert_to_dataset(file_path):
     abs_path = str(Path(abs_file_path_no_ext).parent.resolve()) + "/"
 
     try:
-        _, markdown = result.value.split("\n\nDescription ")
+        _, markdown = result.value.split("\n\nDescription ").replace("\\#", "#")
         markdown = "![" + markdown
     except:
         print("Cannot find image at top of profile. Attempting raw conversion.")
