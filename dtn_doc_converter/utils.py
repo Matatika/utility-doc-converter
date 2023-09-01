@@ -55,7 +55,7 @@ def convert_to_dataset(file_path):
         markdown = "![" + markdown
     except:
         print("Cannot find image at top of profile. Attempting raw conversion.")
-        markdown = result.value
+        markdown = result.value.replace("\\#", "#")
 
     dataset = {
         "description": markdown,
