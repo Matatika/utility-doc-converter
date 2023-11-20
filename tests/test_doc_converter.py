@@ -1,12 +1,12 @@
-"""Unittest module for dtn-doc-converter utility"""
+"""Unittest module for doc-converter utility"""
 
 import unittest
 from click.testing import CliRunner
-from dtn_doc_converter.cli.commands.root import convert
-from dtn_doc_converter.utils import check_file_type
+from doc_converter.cli.commands.root import convert
+from doc_converter.utils import check_file_type
 
 
-class TestDtnDocConverter(unittest.TestCase):
+class TestDocConverter(unittest.TestCase):
     def setUp(self):
         self.runner = CliRunner()
         self.docx_file_path = "path/to/file.docx"

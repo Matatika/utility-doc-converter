@@ -4,7 +4,7 @@ from genericpath import isdir
 import click
 import os
 
-from dtn_doc_converter.utils import check_file_type, convert_to_dataset, convert_files_in_dir
+from doc_converter.utils import check_file_type, convert_to_dataset, convert_files_in_dir
 
 
 @click.command()
