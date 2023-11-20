@@ -1,10 +1,13 @@
 """CLI entrypoint 'doc-converter' command"""
-
-from genericpath import isdir
-import click
 import os
 
-from doc_converter.utils import check_file_type, convert_to_dataset, convert_files_in_dir
+import click
+
+from doc_converter.utils import (
+    check_file_type,
+    convert_files_in_dir,
+    convert_to_dataset,
+)
 
 
 @click.command()
@@ -20,4 +23,3 @@ def convert(file_path):
         convert_files_in_dir(file_path)
     elif check_file_type(file_path):
         convert_to_dataset(file_path)
-

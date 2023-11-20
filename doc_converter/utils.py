@@ -1,16 +1,17 @@
-import mammoth
-import click
 import os
+from pathlib import Path
+
+import click
+import mammoth
 import yaml
 
-from pathlib import Path
 
 def check_file_type(file_path):
     abs_file_path = os.path.abspath(file_path)
     _, file_ext = os.path.splitext(abs_file_path)
     if file_ext == ".docx":
         return True
-    if file_ext == '.md':
+    if file_ext == ".md":
         click.secho("File already of type markdown, not converting", fg="yellow")
         return False
     else:
@@ -19,7 +20,6 @@ def check_file_type(file_path):
 
 
 def convert_files_in_dir(file_path):
-
     if file_path[-1] != "/":
         file_path += "/"
 
@@ -33,9 +33,7 @@ def convert_files_in_dir(file_path):
 
 
 def convert_to_dataset(file_path):
-
     abs_file_path_no_ext, _ = os.path.splitext(os.path.abspath(file_path))
-
 
     with open(file_path, "rb") as docx_file:
         result = mammoth.convert_to_markdown(docx_file)
@@ -51,13 +49,9 @@ def convert_to_dataset(file_path):
         print("Cannot find image at top of profile. Attempting raw conversion.")
         markdown = result.value.replace("\\#", "#")
 
-    dataset = {
-        "description": markdown,
-        "title": file_name,
-        "version": "datasets/v0.2"        
-    }
+    dataset = {"description": markdown, "title": file_name, "version": "datasets/v0.2"}
 
-    dataset_path = abs_path + file_name.lower().replace(' ', '-')
+    dataset_path = abs_path + file_name.lower().replace(" ", "-")
 
-    with open(dataset_path + '.yml', "w") as yaml_file:
+    with open(dataset_path + ".yml", "w") as yaml_file:
         yaml.dump(dataset, yaml_file, default_flow_style=False)

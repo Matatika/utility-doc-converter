@@ -1,7 +1,9 @@
 """Unittest module for doc-converter utility"""
 
 import unittest
+
 from click.testing import CliRunner
+
 from doc_converter.cli.commands.root import convert
 from doc_converter.utils import check_file_type
 
