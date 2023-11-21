@@ -3,6 +3,7 @@ from pathlib import Path
 import click
 import mammoth
 import yaml
+from matatika.dataset import DatasetV0_2
 
 SUPPORTED_FILE_TYPES = [
     ".doc",
@@ -26,13 +27,16 @@ def convert_to_dataset(file: Path):
 
     markdown = result.value.replace("\\#", "#")
 
-    dataset = {
-        "version": "datasets/v0.2",
-        "title": file.stem,
-        "description": markdown,
+    dataset = DatasetV0_2()
+    dataset.title = file.stem
+    dataset.description = markdown
+
+    dataset_yml = file.parent / f"{file.stem}.yml"
+
+    data = {
+        **dict.fromkeys(("version",)),
+        **dataset.to_dict(apply_translations=False),
     }
 
-    dataset_path = file.parent / f"{file.stem}.yml"
-
-    with dataset_path.open("w") as yml:
-        yaml.dump(dataset, yml, default_flow_style=False)
+    with dataset_yml.open("w") as f:
+        yaml.dump(data, f, default_flow_style=False, sort_keys=False)
