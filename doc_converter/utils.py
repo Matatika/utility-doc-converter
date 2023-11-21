@@ -1,18 +1,26 @@
+import tempfile
 from pathlib import Path
 
 import click
 import mammoth
+import pdf2docx
 import yaml
 from matatika.dataset import DatasetV0_2
 
 SUPPORTED_FILE_TYPES = [
     ".doc",
     ".docx",
+    ".pdf",
 ]
 
 
 def is_supported_file(file: Path):
     return file.suffix in SUPPORTED_FILE_TYPES
+
+
+def convert_docx_to_md(docx: Path):
+    with docx.open("rb") as f:
+        return mammoth.convert_to_markdown(f)
 
 
 def convert_to_dataset(file: Path):
@@ -22,8 +30,17 @@ def convert_to_dataset(file: Path):
 
     click.echo(f"Converting {file}...")
 
-    with file.open("rb") as f:
-        result = mammoth.convert_to_markdown(f)
+    if file.suffix == ".pdf":
+        with tempfile.TemporaryDirectory(prefix="doc-converter-") as tmp_dir:
+            tmp_docx = Path(tmp_dir) / f"{file.stem}.docx"
+
+            pdf_converter = pdf2docx.Converter(str(file))
+            pdf_converter.convert(str(tmp_docx))
+            pdf_converter.close()
+
+            result = convert_docx_to_md(tmp_docx)
+    else:
+        result = convert_docx_to_md(file)
 
     markdown = result.value.replace("\\#", "#")
 

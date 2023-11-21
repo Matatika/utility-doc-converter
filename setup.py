@@ -6,7 +6,7 @@ with open("requirements.txt") as f:
 setup(
     name="doc_converter",
     version="0.1.0",
-    description="Utility for converting `.doc` and `.docx` files into the Matatika dataset format.",
+    description="Utility for converting `.doc`, `.docx` and `.pdf` files into the Matatika dataset format.",
     author="DanielPDWalker",
     url="https://www.matatika.com/",
     entry_points="""
