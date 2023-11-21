@@ -1,25 +1,22 @@
 """CLI entrypoint 'doc-converter' command"""
 import os
+from pathlib import Path
 
 import click
 
-from doc_converter.utils import (
-    check_file_type,
-    convert_files_in_dir,
-    convert_to_dataset,
-)
+from doc_converter.utils import convert_to_dataset
 
 
 @click.command()
 @click.argument(
     "file_path",
-    type=click.STRING,
+    type=click.Path(exists=True, path_type=Path),
     default=os.getenv("DOC_CONVERTER_FILE_PATH"),
 )
-def convert(file_path):
+def convert(file_path: Path):
     """CLI entrypoint and base command"""
-
-    if os.path.isdir(file_path):
-        convert_files_in_dir(file_path)
-    elif check_file_type(file_path):
+    if file_path.is_dir():
+        for file in file_path.iterdir():
+            convert_to_dataset(file)
+    else:
         convert_to_dataset(file_path)
