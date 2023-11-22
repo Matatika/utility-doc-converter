@@ -1,4 +1,5 @@
 import os
+import re
 import tempfile
 from pathlib import Path
 
@@ -45,6 +46,13 @@ def convert_pdf_to_description(pdf: Path):
         return tmp_txt.read_text().strip()
 
 
+def add_tags_to_description(file: Path, description: str):
+    parts = [part for part in (*file.parts[:-1], file.stem)]
+    tags = ["#" + re.sub(r"\W", "_", part.lower()) for part in parts]
+
+    return description + "\n\n" + " ".join(tags)
+
+
 def convert_to_dataset(file: Path):
     if not is_supported_file(file):
         click.secho(f"Skipping {file}...")
@@ -60,6 +68,8 @@ def convert_to_dataset(file: Path):
     if not description:
         click.echo(f"Nothing to do for {file}")
         return
+
+    description = add_tags_to_description(file, description)
 
     dataset = DatasetV0_2()
     dataset.title = file.stem
