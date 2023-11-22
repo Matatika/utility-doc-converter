@@ -3,3 +3,4 @@ mammoth==1.5.0
 PyYAML~=6.0
 matatika~=1.15
 pdf2docx~=0.5
+ocrmypdf~=14.4
