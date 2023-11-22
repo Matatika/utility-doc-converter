@@ -57,6 +57,10 @@ def convert_to_dataset(file: Path):
     else:
         description = convert_docx_to_description(file)
 
+    if not description:
+        click.echo(f"Nothing to do for {file}")
+        return
+
     dataset = DatasetV0_2()
     dataset.title = file.stem
     dataset.description = description
