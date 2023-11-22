@@ -11,7 +11,7 @@ from doc_converter.utils import convert_to_dataset
 @click.argument(
     "file_path",
     type=click.Path(exists=True, path_type=Path),
-    default=os.getenv("DOC_CONVERTER_FILE_PATH"),
+    default=os.getenv("DOC_CONVERTER_FILE_PATH", Path.cwd()),
 )
 def convert(file_path: Path):
     """CLI entrypoint and base command"""
