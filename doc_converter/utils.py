@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 import re
 import tempfile
@@ -53,7 +55,7 @@ def add_tags_to_description(file: Path, description: str):
     return description + "\n\n" + " ".join(tags)
 
 
-def convert_to_dataset(file: Path):
+def convert_to_dataset(file: Path, output_dir: Path | None):
     if not is_supported_file(file):
         click.secho(f"Skipping {file}...")
         return
@@ -75,7 +77,7 @@ def convert_to_dataset(file: Path):
     dataset.title = file.stem
     dataset.description = description
 
-    dataset_yml = file.parent / f"{file.stem}.yml"
+    dataset_yml = (output_dir or file.parent) / f"{file.stem}.yml"
 
     data = {
         **dict.fromkeys(("version",)),
