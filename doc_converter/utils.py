@@ -74,6 +74,7 @@ def convert_to_dataset(file: Path, output_dir: Path | None):
     description = add_tags_to_description(file, description)
 
     dataset = DatasetV0_2()
+    dataset.source = os.getenv("DOC_CONVERTER_SOURCE", "Documents")
     dataset.title = file.stem
     dataset.description = description
 
