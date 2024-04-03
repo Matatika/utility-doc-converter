@@ -1,5 +1,6 @@
 """Unittest module for doc-converter utility"""
 
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -16,11 +17,12 @@ class TestDocConverter(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def test_convert_no_file_path(self):
-        result = self.runner.invoke(convert)
+    def test_convert_empty_dir(self):
+        with tempfile.TemporaryDirectory(prefix="test-doc-converter-") as tmp_dir:
+            result = self.runner.invoke(convert, tmp_dir)
 
-        self.assertIn("Error", result.output)
-        self.assertIs(result.exit_code, 2)
+        self.assertFalse(result.output)
+        self.assertIs(result.exit_code, 0)
 
     def test_check_file_type_docx(self):
         file = Path("path/to/file.docx")

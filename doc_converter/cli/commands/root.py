@@ -4,7 +4,7 @@ from pathlib import Path
 
 import click
 
-from doc_converter.utils import convert_to_dataset
+from doc_converter.utils import is_supported_file, convert_to_dataset
 
 
 @click.command()
@@ -20,8 +20,6 @@ from doc_converter.utils import convert_to_dataset
 )
 def convert(file_path: Path, output_dir):
     """CLI entrypoint and base command"""
-    if file_path.is_dir():
-        for file in file_path.iterdir():
+    for file in file_path.rglob("*"):
+        if is_supported_file(file):
             convert_to_dataset(file, output_dir)
-    else:
-        convert_to_dataset(file_path, output_dir)
