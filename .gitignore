@@ -1,11 +1,7 @@
-/venv
 .env
+
+__pycache__/
 .vscode
-__pycache__
-*.egg-info
-*.docx
-*.doc
-*.md
-*.yml
-*.pdf
+*.egg-info/
 build/
+venv/
