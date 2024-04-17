@@ -16,7 +16,17 @@ SUPPORTED_FILE_TYPES = [
     ".doc",
     ".docx",
     ".pdf",
+    ".html",
 ]
+
+
+def multiline_string_representer(dumper: yaml.Dumper, data: str):
+    if "\n" in data:
+        return dumper.represent_scalar("tag:yaml.org,2002:str", data, style="|")
+    return dumper.represent_scalar("tag:yaml.org,2002:str", data)
+
+
+yaml.add_representer(str, multiline_string_representer)
 
 
 def is_supported_file(file: Path):
@@ -48,6 +58,11 @@ def convert_pdf_to_description(pdf: Path):
         return tmp_txt.read_text().strip()
 
 
+def convert_file_to_description(file: Path):
+    lines = file.read_text().splitlines()
+    return "\n".join(line.rstrip() for line in lines)
+
+
 def add_tags_to_description(file: Path, description: str):
     parts = [part for part in (*file.parts[:-1], file.stem)]
     tags = ["#" + re.sub(r"\W", "_", part.lower()) for part in parts]
@@ -64,8 +79,10 @@ def convert_to_dataset(file: Path, output_dir: Path | None):
 
     if file.suffix == ".pdf":
         description = convert_pdf_to_description(file)
-    else:
+    elif file.suffix in (".doc", ".docx"):
         description = convert_docx_to_description(file)
+    else:
+        description = convert_file_to_description(file)
 
     if not description:
         click.echo(f"Nothing to do for {file}")
@@ -86,4 +103,10 @@ def convert_to_dataset(file: Path, output_dir: Path | None):
     }
 
     with dataset_yml.open("w") as f:
-        yaml.dump(data, f, default_flow_style=False, sort_keys=False)
+        yaml.dump(
+            data,
+            f,
+            default_flow_style=False,
+            sort_keys=False,
+            allow_unicode=True,
+        )
