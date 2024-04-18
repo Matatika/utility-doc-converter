@@ -6,17 +6,34 @@ import tempfile
 from pathlib import Path
 
 import click
+import jsonlines
 import mammoth
 import ocrmypdf
 import pdf2docx
 import yaml
 from matatika.dataset import DatasetV0_2
 
+from doc_converter.converters.taps import tap_beautifulsoup
+
 SUPPORTED_FILE_TYPES = [
     ".doc",
     ".docx",
     ".pdf",
+    ".out",
 ]
+
+SUPPORTED_TAP_OUTPUTS = {
+    "tap-beautifulsoup.out": tap_beautifulsoup.convert_record_to_dataset,
+}
+
+
+def multiline_string_representer(dumper: yaml.Dumper, data: str):
+    if "\n" in data:
+        return dumper.represent_scalar("tag:yaml.org,2002:str", data, style="|")
+    return dumper.represent_scalar("tag:yaml.org,2002:str", data)
+
+
+yaml.add_representer(str, multiline_string_representer)
 
 
 def is_supported_file(file: Path):
@@ -62,6 +79,32 @@ def convert_to_dataset(file: Path, output_dir: Path | None):
 
     click.echo(f"Converting {file}...")
 
+    if file.suffix == ".out":
+        convert_tap_output_to_dataset(file, output_dir)
+    else:
+        convert_file_to_dataset(file, output_dir)
+
+
+def convert_tap_output_to_dataset(out_file: Path, output_dir: Path | None):
+    if out_file.suffix != ".out":
+        raise ValueError(f"{out_file.name} not an .out file")
+
+    if out_file.name not in SUPPORTED_TAP_OUTPUTS:
+        raise ValueError(f"{out_file.name} not suppored")
+
+    convert_record_to_dataset = SUPPORTED_TAP_OUTPUTS[out_file.name]
+
+    with out_file.open() as f:
+        for singer_message in jsonlines.Reader(f):
+            if singer_message["type"] != "RECORD":
+                continue
+
+            convert_record_to_dataset(
+                singer_message["record"], output_dir or out_file.parent
+            )
+
+
+def convert_file_to_dataset(file: Path, output_dir: Path | None):
     if file.suffix == ".pdf":
         description = convert_pdf_to_description(file)
     else:
@@ -73,12 +116,18 @@ def convert_to_dataset(file: Path, output_dir: Path | None):
 
     description = add_tags_to_description(file, description)
 
+    write_dataset(
+        title=file.stem,
+        description=description,
+        dataset_yml=(output_dir or file.parent) / f"{file.stem}.yml",
+    )
+
+
+def write_dataset(title: str, description: str, dataset_yml: Path):
     dataset = DatasetV0_2()
     dataset.source = os.getenv("DOC_CONVERTER_SOURCE", "Documents")
-    dataset.title = file.stem
+    dataset.title = title
     dataset.description = description
-
-    dataset_yml = (output_dir or file.parent) / f"{file.stem}.yml"
 
     data = {
         **dict.fromkeys(("version",)),
@@ -86,4 +135,10 @@ def convert_to_dataset(file: Path, output_dir: Path | None):
     }
 
     with dataset_yml.open("w") as f:
-        yaml.dump(data, f, default_flow_style=False, sort_keys=False)
+        yaml.dump(
+            data,
+            f,
+            default_flow_style=False,
+            sort_keys=False,
+            allow_unicode=True,
+        )
