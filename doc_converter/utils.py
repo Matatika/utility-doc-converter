@@ -127,7 +127,7 @@ def write_dataset(title: str, description: str, dataset_yml: Path):
     dataset = DatasetV0_2()
     dataset.source = os.getenv("DOC_CONVERTER_SOURCE", "Documents")
     dataset.title = title
-    dataset.description = description
+    dataset.description = description.encode("ascii", errors="ignore").decode()
 
     data = {
         **dict.fromkeys(("version",)),
@@ -140,5 +140,4 @@ def write_dataset(title: str, description: str, dataset_yml: Path):
             f,
             default_flow_style=False,
             sort_keys=False,
-            allow_unicode=True,
         )
