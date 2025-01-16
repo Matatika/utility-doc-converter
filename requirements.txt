@@ -8,3 +8,7 @@ jsonlines~=4.0
 
 # sub-dependencies
 pikepdf~=8.15
+
+# lock to these specific version due to https://github.com/ArtifexSoftware/pdf2docx/issues/329
+fonttools==4.55.0
+PyMuPDF==1.24.14
